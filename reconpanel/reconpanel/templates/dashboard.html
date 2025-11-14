@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row mb-4">
+  <div class="col-md-3">
+    <div class="card text-bg-primary">
+      <div class="card-body">
+        <h6 class="card-title text-uppercase">Total Findings</h6>
+        <p class="display-6">{{ total_findings }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-9">
+    <div class="card">
+      <div class="card-body">
+        <h6 class="card-title text-uppercase">Scan Status</h6>
+        <div class="d-flex flex-wrap gap-3">
+          {% for status, count in status_counts.items() %}
+            <div>
+              <span class="badge bg-secondary text-uppercase">{{ status }}</span>
+              <span class="fs-5 ms-2">{{ count }}</span>
+            </div>
+          {% else %}
+            <p class="mb-0">No scans yet.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2 class="h4 mb-0">Recent Scans</h2>
+  <a href="{{ url_for('main.create_scan') }}" class="btn btn-success">New Scan</a>
+</div>
+<div class="card">
+  <div class="table-responsive">
+    <table class="table mb-0">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Created</th>
+          <th>Status</th>
+          <th>Findings</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for scan in recent_scans %}
+        <tr>
+          <td>{{ scan.id }}</td>
+          <td>{{ scan.name or '-' }}</td>
+          <td>{{ scan.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+          <td>
+            {% include 'partials/status_badge.html' with context %}
+          </td>
+          <td>{{ scan.findings|length }}</td>
+          <td><a href="{{ url_for('main.scan_detail', scan_id=scan.id) }}" class="btn btn-sm btn-outline-primary">View</a></td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="6" class="text-center py-4">No scans created yet.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
