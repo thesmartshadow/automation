@@ -1,0 +1,7 @@
+{% set status_classes = {
+  'pending': 'bg-secondary',
+  'running': 'bg-warning text-dark',
+  'finished': 'bg-success',
+  'failed': 'bg-danger'
+} %}
+<span class="badge {{ status_classes.get(scan.status, 'bg-secondary') }} text-uppercase">{{ scan.status }}</span>
