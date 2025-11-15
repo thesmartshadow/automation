@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="h3 mb-3">Scan #{{ scan.id }} Log</h1>
+<div class="mb-3">
+  <a href="{{ url_for('main.scan_detail', scan_id=scan.id) }}" class="btn btn-outline-secondary">Back to Details</a>
+</div>
+<div class="card">
+  <div class="card-body">
+    <pre class="mb-0" style="max-height: 600px; overflow: auto; white-space: pre-wrap;">{{ log_content }}</pre>
+  </div>
+</div>
+{% endblock %}

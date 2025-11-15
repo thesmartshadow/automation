@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="h3 mb-4">Create New Scan</h1>
+<form method="post">
+  {{ form.hidden_tag() }}
+  <div class="row g-3">
+    <div class="col-md-6">
+      <label class="form-label">{{ form.name.label.text }}</label>
+      {{ form.name(class_="form-control", placeholder="Optional descriptive name") }}
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">{{ form.wordlist.label.text }}</label>
+      {{ form.wordlist(class_="form-select") }}
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">{{ form.line_count.label.text }}</label>
+      {{ form.line_count(class_="form-select") }}
+    </div>
+  </div>
+
+  <hr class="my-4">
+  <h2 class="h5">subfinder Options</h2>
+  <div class="form-check form-switch">
+    {{ form.subfinder_use_all(class_="form-check-input", id="subfinder_all") }}
+    <label class="form-check-label" for="subfinder_all">Include -all flag</label>
+  </div>
+  <div class="form-check form-switch">
+    {{ form.subfinder_use_silent(class_="form-check-input", id="subfinder_silent") }}
+    <label class="form-check-label" for="subfinder_silent">Include -silent flag</label>
+  </div>
+  <div class="form-check form-switch mb-3">
+    {{ form.subfinder_use_recursive(class_="form-check-input", id="subfinder_recursive") }}
+    <label class="form-check-label" for="subfinder_recursive">Include -recursive flag</label>
+  </div>
+
+  <hr class="my-4">
+  <h2 class="h5">nuclei Options</h2>
+  <div class="row g-3">
+    <div class="col-md-6">
+      <label class="form-label">{{ form.nuclei_template.label.text }}</label>
+      {{ form.nuclei_template(class_="form-select") }}
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">Severity</label>
+      {{ form.nuclei_severities(class_="form-select", multiple=true) }}
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">{{ form.nuclei_rate_limit.label.text }}</label>
+      {{ form.nuclei_rate_limit(class_="form-control", placeholder="Optional") }}
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">{{ form.nuclei_concurrency.label.text }}</label>
+      {{ form.nuclei_concurrency(class_="form-control", placeholder="Optional") }}
+    </div>
+  </div>
+  <div class="form-check form-switch mt-3">
+    {{ form.nuclei_fast_mode(class_="form-check-input", id="nuclei_fast") }}
+    <label class="form-check-label" for="nuclei_fast">Enable -stats output</label>
+  </div>
+
+  <div class="mt-4">
+    <button type="submit" class="btn btn-primary">Queue Scan</button>
+    <a href="{{ url_for('main.list_scans') }}" class="btn btn-link">Cancel</a>
+  </div>
+</form>
+{% endblock %}

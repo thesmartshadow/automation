@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h1 class="h3 mb-0">Scan #{{ scan.id }}</h1>
+    <p class="text-muted mb-0">{{ scan.name or 'No name provided' }}</p>
+  </div>
+  <a href="{{ url_for('main.scan_log', scan_id=scan.id) }}" class="btn btn-outline-secondary">View Log</a>
+</div>
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="card h-100">
+      <div class="card-body">
+        <h6 class="text-uppercase text-muted">Status</h6>
+        {% include 'partials/status_badge.html' with context %}
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card h-100">
+      <div class="card-body">
+        <h6 class="text-uppercase text-muted">Timeline</h6>
+        <ul class="list-unstyled mb-0 small">
+          <li>Created: {{ scan.created_at }}</li>
+          <li>Started: {{ scan.started_at or '-' }}</li>
+          <li>Finished: {{ scan.finished_at or '-' }}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card h-100">
+      <div class="card-body">
+        <h6 class="text-uppercase text-muted">Wordlist</h6>
+        <p class="mb-1"><strong>Path:</strong> {{ scan.wordlist_path }}</p>
+        <p class="mb-0"><strong>Lines used:</strong> {{ scan.wordlist_lines_used }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="card mb-4">
+  <div class="card-body">
+    <h2 class="h5">Command Summary</h2>
+    <p class="mb-1"><strong>subfinder options:</strong> {{ scan.subfinder_options }}</p>
+    <p class="mb-1"><strong>nuclei options:</strong> {{ scan.nuclei_options }}</p>
+    <p class="mb-0"><strong>Subfinder output path:</strong> {{ scan.subfinder_output_path or 'Not available' }}</p>
+    {% if scan.error_message %}
+      <div class="alert alert-danger mt-3">Error: {{ scan.error_message }}</div>
+    {% endif %}
+  </div>
+</div>
+<div class="card">
+  <div class="card-body">
+    <h2 class="h5">Findings ({{ findings|length }})</h2>
+    <div class="table-responsive">
+      <table class="table table-sm">
+        <thead>
+          <tr>
+            <th>Target</th>
+            <th>Template</th>
+            <th>Severity</th>
+            <th>Detected</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for finding in findings %}
+          <tr>
+            <td>{{ finding.target }}</td>
+            <td>{{ finding.template_id or '-' }}</td>
+            <td>
+              {% set severity_colors = {
+                'info': 'bg-secondary',
+                'low': 'bg-info text-dark',
+                'medium': 'bg-warning text-dark',
+                'high': 'bg-danger',
+                'critical': 'bg-dark'
+              } %}
+              <span class="badge {{ severity_colors.get(finding.severity, 'bg-secondary') }} text-uppercase">{{ finding.severity or 'unknown' }}</span>
+            </td>
+            <td>{{ finding.created_at }}</td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="4" class="text-center py-4">No findings recorded.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

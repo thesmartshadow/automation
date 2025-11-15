@@ -1,0 +1,52 @@
+version: "3.9"
+
+services:
+  web:
+    build: .
+    image: reconpanel:latest
+    restart: unless-stopped
+    environment:
+      RECONPANEL_SECRET_KEY: ${RECONPANEL_SECRET_KEY}
+      RECONPANEL_ADMIN_USERNAME: ${RECONPANEL_ADMIN_USERNAME}
+      RECONPANEL_ADMIN_PASSWORD: ${RECONPANEL_ADMIN_PASSWORD}
+      DATABASE_URL: ${DATABASE_URL:-sqlite:////data/db/reconpanel.db}
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+    ports:
+      - "9000:9000"
+    volumes:
+      - reconpanel-db:/data/db
+      - ./data/wordlists:/data/wordlists
+      - ./data/logs:/data/logs
+      - ./data/nuclei-templates:/nuclei-templates:ro
+    depends_on:
+      - redis
+
+  worker:
+    image: reconpanel:latest
+    restart: unless-stopped
+    command: celery -A reconpanel.celery_app worker --loglevel=info
+    environment:
+      RECONPANEL_SECRET_KEY: ${RECONPANEL_SECRET_KEY}
+      RECONPANEL_ADMIN_USERNAME: ${RECONPANEL_ADMIN_USERNAME}
+      RECONPANEL_ADMIN_PASSWORD: ${RECONPANEL_ADMIN_PASSWORD}
+      DATABASE_URL: ${DATABASE_URL:-sqlite:////data/db/reconpanel.db}
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+    volumes:
+      - reconpanel-db:/data/db
+      - ./data/wordlists:/data/wordlists
+      - ./data/logs:/data/logs
+      - ./data/nuclei-templates:/nuclei-templates:ro
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+
+volumes:
+  redis-data:
+  reconpanel-db:
