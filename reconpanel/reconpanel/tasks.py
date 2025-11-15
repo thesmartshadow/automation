@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 import json
+ codex/design-and-implement-reconpanel-web-app-c5u9lc
 import logging
 import subprocess
 import traceback
+import subprocess
+ main
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Iterable, List
@@ -17,9 +20,11 @@ from .extensions import db
 from .models import Finding, ScanTask
 
 
+ codex/design-and-implement-reconpanel-web-app-c5u9lc
 logger = logging.getLogger(__name__)
 
 
+ main
 celery = Celery("reconpanel")
 
 
@@ -67,6 +72,7 @@ def _read_wordlist_subset(path: Path, lines: int, output_path: Path) -> int:
     return count
 
 
+ codex/design-and-implement-reconpanel-web-app-c5u9lc
 def _append_log(log_file: Path, message: str) -> None:
     timestamp = datetime.utcnow().isoformat(timespec="seconds")
     with log_file.open("a", encoding="utf-8") as log:
@@ -81,6 +87,16 @@ def _run_command(command: List[str], log_file: Path) -> subprocess.CompletedProc
             log.write(process.stdout.rstrip("\n") + "\n")
         if process.stderr:
             log.write("[stderr]\n" + process.stderr.rstrip("\n") + "\n")
+
+def _run_command(command: List[str], log_file: Path) -> subprocess.CompletedProcess:
+    process = subprocess.run(command, capture_output=True, text=True)
+    with log_file.open("a", encoding="utf-8") as log:
+        log.write("$ " + " ".join(command) + "\n")
+        if process.stdout:
+            log.write(process.stdout + "\n")
+        if process.stderr:
+            log.write("[stderr]\n" + process.stderr + "\n")
+ main
     process.check_returncode()
     return process
 
@@ -102,10 +118,15 @@ def _parse_nuclei_results(result_path: Path) -> Iterable[tuple[Dict[str, Any], s
 
 @celery.task(name="reconpanel.run_scan")
 def run_scan(scan_id: int) -> None:
+ codex/design-and-implement-reconpanel-web-app-c5u9lc
     logger.info("Starting scan %s", scan_id)
     scan = db.session.get(ScanTask, scan_id)
     if not scan:
         logger.warning("Scan %s no longer exists", scan_id)
+
+    scan = db.session.get(ScanTask, scan_id)
+    if not scan:
+ main
         return
 
     config = current_app.config
@@ -114,6 +135,7 @@ def run_scan(scan_id: int) -> None:
     _ensure_directories(log_dir, tmp_dir)
 
     log_path = Path(log_dir) / f"scan_{scan_id}.log"
+ codex/design-and-implement-reconpanel-web-app-c5u9lc
     log_path.parent.mkdir(parents=True, exist_ok=True)
     log_path.touch(exist_ok=True)
 
@@ -125,6 +147,13 @@ def run_scan(scan_id: int) -> None:
 
     _append_log(log_path, "Scan started")
 
+
+    scan.log_path = str(log_path)
+    scan.status = "running"
+    scan.started_at = datetime.utcnow()
+    db.session.commit()
+
+ main
     wordlist_base = config["WORDLIST_DIRECTORY"]
     nuclei_template_base = config["NUCLEI_TEMPLATE_DIRECTORY"]
 
@@ -135,10 +164,14 @@ def run_scan(scan_id: int) -> None:
 
         subset_path = Path(tmp_dir) / f"scan_{scan_id}_targets.txt"
         used_lines = _read_wordlist_subset(wordlist_path, scan.wordlist_lines_used, subset_path)
+ codex/design-and-implement-reconpanel-web-app-c5u9lc
         if used_lines == 0:
             raise ValueError("Selected wordlist produced no targets to scan")
         scan.wordlist_lines_used = used_lines
         _append_log(log_path, f"Prepared target subset with {used_lines} entries")
+
+        scan.wordlist_lines_used = used_lines
+ main
 
         subfinder_output = Path(tmp_dir) / f"scan_{scan_id}_subfinder.txt"
         scan.subfinder_output_path = str(subfinder_output)
@@ -153,7 +186,9 @@ def run_scan(scan_id: int) -> None:
             subfinder_command.append("-recursive")
         subfinder_command.extend(["-o", str(subfinder_output)])
 
+ codex/design-and-implement-reconpanel-web-app-c5u9lc
         _append_log(log_path, "Running subfinder")
+ main
         _run_command(subfinder_command, log_path)
 
         nuclei_output = Path(tmp_dir) / f"scan_{scan_id}_nuclei.jsonl"
@@ -182,6 +217,7 @@ def run_scan(scan_id: int) -> None:
 
         nuclei_command.extend(["-o", str(nuclei_output)])
 
+ codex/design-and-implement-reconpanel-web-app-c5u9lc
         _append_log(log_path, "Running nuclei")
         _run_command(nuclei_command, log_path)
 
@@ -196,6 +232,14 @@ def run_scan(scan_id: int) -> None:
             if severity is None:
                 severity = result.get("severity")
 
+
+        _run_command(nuclei_command, log_path)
+
+        for result, raw_line in _parse_nuclei_results(nuclei_output):
+            target = result.get("host") or result.get("matched-at") or result.get("url") or "unknown"
+            template_id = result.get("template-id") or result.get("templateID")
+            severity = result.get("info", {}).get("severity") if isinstance(result.get("info"), dict) else result.get("severity")
+ main
             finding = Finding(
                 scan_id=scan.id,
                 target=target,
@@ -204,12 +248,16 @@ def run_scan(scan_id: int) -> None:
                 raw_line=raw_line,
             )
             db.session.add(finding)
+ codex/design-and-implement-reconpanel-web-app-c5u9lc
             finding_count += 1
 
+
+ main
         scan.status = "finished"
         scan.finished_at = datetime.utcnow()
         scan.error_message = None
         db.session.commit()
+ codex/design-and-implement-reconpanel-web-app-c5u9lc
 
         _append_log(log_path, f"Scan finished successfully with {finding_count} findings")
         logger.info("Scan %s finished successfully (%s findings)", scan_id, finding_count)
@@ -240,3 +288,23 @@ def run_scan(scan_id: int) -> None:
         _append_log(log_path, traceback.format_exc())
     finally:
         db.session.remove()
+
+    except subprocess.CalledProcessError as exc:
+        with log_path.open("a", encoding="utf-8") as log:
+            log.write(f"Command failed with exit code {exc.returncode}: {' '.join(exc.cmd)}\n")
+            if exc.output:
+                log.write(exc.output + "\n")
+            if exc.stderr:
+                log.write(exc.stderr + "\n")
+        scan.status = "failed"
+        scan.finished_at = datetime.utcnow()
+        scan.error_message = f"Command failed: {' '.join(exc.cmd)}"
+        db.session.commit()
+    except Exception as exc:  # pylint: disable=broad-except
+        with log_path.open("a", encoding="utf-8") as log:
+            log.write(f"Unhandled error: {exc}\n")
+        scan.status = "failed"
+        scan.finished_at = datetime.utcnow()
+        scan.error_message = str(exc)
+        db.session.commit()
+ main

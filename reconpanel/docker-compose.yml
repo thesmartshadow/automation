@@ -9,16 +9,25 @@ services:
       RECONPANEL_SECRET_KEY: ${RECONPANEL_SECRET_KEY}
       RECONPANEL_ADMIN_USERNAME: ${RECONPANEL_ADMIN_USERNAME}
       RECONPANEL_ADMIN_PASSWORD: ${RECONPANEL_ADMIN_PASSWORD}
+ codex/design-and-implement-reconpanel-web-app-c5u9lc
       DATABASE_URL: ${DATABASE_URL:-sqlite:////data/db/reconpanel.db}
+=======
+      DATABASE_URL: ${DATABASE_URL:-sqlite:////data/reconpanel.db}
+ main
       CELERY_BROKER_URL: redis://redis:6379/0
       CELERY_RESULT_BACKEND: redis://redis:6379/0
     ports:
       - "9000:9000"
     volumes:
+ codex/design-and-implement-reconpanel-web-app-c5u9lc
       - reconpanel-db:/data/db
       - ./data/wordlists:/data/wordlists
       - ./data/logs:/data/logs
       - ./data/nuclei-templates:/nuclei-templates:ro
+=======
+      - ./data/wordlists:/data/wordlists
+      - ./data/logs:/data/logs
+ main
     depends_on:
       - redis
 
@@ -30,6 +39,7 @@ services:
       RECONPANEL_SECRET_KEY: ${RECONPANEL_SECRET_KEY}
       RECONPANEL_ADMIN_USERNAME: ${RECONPANEL_ADMIN_USERNAME}
       RECONPANEL_ADMIN_PASSWORD: ${RECONPANEL_ADMIN_PASSWORD}
+ codex/design-and-implement-reconpanel-web-app-c5u9lc
       DATABASE_URL: ${DATABASE_URL:-sqlite:////data/db/reconpanel.db}
       CELERY_BROKER_URL: redis://redis:6379/0
       CELERY_RESULT_BACKEND: redis://redis:6379/0
@@ -38,6 +48,14 @@ services:
       - ./data/wordlists:/data/wordlists
       - ./data/logs:/data/logs
       - ./data/nuclei-templates:/nuclei-templates:ro
+=======
+      DATABASE_URL: ${DATABASE_URL:-sqlite:////data/reconpanel.db}
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+    volumes:
+      - ./data/wordlists:/data/wordlists
+      - ./data/logs:/data/logs
+ main
     depends_on:
       - redis
 
@@ -49,4 +67,7 @@ services:
 
 volumes:
   redis-data:
+ codex/design-and-implement-reconpanel-web-app-c5u9lc
   reconpanel-db:
+=======
+ main

@@ -26,6 +26,7 @@ Set the following environment variables before launching the stack:
 - `RECONPANEL_SECRET_KEY` – Flask secret key for sessions and CSRF.
 - `RECONPANEL_ADMIN_USERNAME` – Initial admin username created on first boot.
 - `RECONPANEL_ADMIN_PASSWORD` – Password for the admin user (stored hashed).
+ codex/design-and-implement-reconpanel-web-app-c5u9lc
 - `DATABASE_URL` – Optional database URL. Defaults to `sqlite:////data/db/reconpanel.db`.
 
 ## Wordlists and Logs
@@ -33,6 +34,13 @@ Set the following environment variables before launching the stack:
 Place your domain wordlists in a host directory (e.g., `./data/wordlists`). They will be mounted at `/data/wordlists` inside the containers. Logs are stored under `/data/logs` and persisted to `./data/logs` on the host. The SQLite database lives under `/data/db` (backed by the `reconpanel-db` volume) so the web app and Celery worker share the same state.
 
 Clone the official nuclei templates locally (for example, `git clone https://github.com/projectdiscovery/nuclei-templates.git data/nuclei-templates`). The directory is mounted read-only at `/nuclei-templates` inside the containers and exposed in the UI when creating scans.
+
+- `DATABASE_URL` – Optional database URL. Defaults to `sqlite:////data/reconpanel.db`.
+
+## Wordlists and Logs
+
+Place your domain wordlists in a host directory (e.g., `./data/wordlists`). They will be mounted at `/data/wordlists` inside the containers. Logs are stored under `/data/logs` and persisted to `./data/logs` on the host.
+ main
 
 ## Usage
 
