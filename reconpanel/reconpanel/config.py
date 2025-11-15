@@ -6,7 +6,11 @@ import os
 from dataclasses import dataclass
 
 
+ codex/design-and-implement-reconpanel-web-app-c5u9lc
+DEFAULT_DB_PATH = "sqlite:////data/db/reconpanel.db"
+
 DEFAULT_DB_PATH = "sqlite:////data/reconpanel.db"
+ main
 DEFAULT_WORDLIST_DIR = "/data/wordlists"
 DEFAULT_LOG_DIR = "/data/logs"
 DEFAULT_TMP_DIR = "/tmp/reconpanel"
